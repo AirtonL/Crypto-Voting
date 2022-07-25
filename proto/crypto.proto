@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package crypto;
+
+option go_package = "pb";
+
+service CryptoProto {
+    rpc CreateNewCrypto(CreateNewCryptoRequest) returns (CreateCryptoResponse) {};
+    rpc GetByIdCrypto(GetByIdCryptoRequest) returns (GetByIdCryptoResponse) {};
+    rpc GetAllCrypto(GetAllCryptoRequest) returns (stream GetAllCryptoResponse) {};
+    rpc UpVoteCrypto(UpVoteCryptoRequest) returns (UpVoteCryptoResponse) {};
+    rpc DownVoteCrypto(DownVoteCryptoRequest) returns (DownVoteCryptoResponse) {};
+    rpc DeleteCrypto(DeleteCryptoRequest) returns (DeleteCryptoResponse) {};
+}
+
+message Crypto {
+    string id = 1;
+    string name = 2;
+    int64 upvote = 3;
+    int64 downvote = 4;
+    int64 totalscore = 5;
+}
+
+message CreateNewCryptoRequest {
+    Crypto crypto = 1;
+}
+
+message CreateCryptoResponse {
+    Crypto crypto = 1;
+}
+
+message GetByIdCryptoRequest {
+    string id = 1;
+}
+
+message GetByIdCryptoResponse {
+    Crypto crypto = 1;
+}
+
+message GetAllCryptoRequest {}
+
+message GetAllCryptoResponse {
+    Crypto crypto = 1;
+}
+
+message UpVoteCryptoRequest {
+    string id = 1;
+}
+
+message UpVoteCryptoResponse {
+    bool upvote = 1;
+}
+
+message DownVoteCryptoRequest {
+    string id = 1;
+}
+
+message DownVoteCryptoResponse {
+    bool downvote = 1;
+}
+
+message DeleteCryptoRequest {
+    string id = 1;
+}
+
+message DeleteCryptoResponse {
+    bool delete = 1;
+}
+
