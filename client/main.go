@@ -3,9 +3,12 @@ package main
 import (
 
 	// "io"
-	"log"
 
-	"github.com/AirtonL/Klever-Crypto/models"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+
 	"github.com/AirtonL/Klever-Crypto/pb"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
@@ -13,7 +16,6 @@ import (
 
 var (
 	client pb.CryptoProtoClient
-	crypto models.Cryptos
 )
 
 // https://www.youtube.com/watch?v=Y92WWaZJl24&ab_channel=TensorProgramming
@@ -24,63 +26,146 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not connect to server: %v", err)
 	}
-
-	client := pb.NewCryptoProtoClient(connection)
-
 	defer connection.Close()
+	log.Println(connection)
+
+	client = pb.NewCryptoProtoClient(connection)
 
 	g := gin.Default()
 
-	// request := pb.GetByIdCryptoRequest{
-	// 	Id: "62df6577622d144887f96338",
-	// }
+	g.POST("/crypto", createNewCrypto)
+	g.GET("/crypto", getAllCrypto)
+	g.PUT("/upvote/:id", upvoteCrypto)
+	g.PUT("/downvote/:id", downvoteCrypto)
+	g.GET("/crypto/:id", getByIdCrypto)
+	g.DELETE("/crypto/:id", deleteCrypto)
 
-	// responseId, err := client.GetByIdCrypto(context.Background(), &request)
+	if err := g.Run(":8080"); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
+	}
+}
 
-	// if err != nil {
-	// 	log.Fatalf("Could not get crypto: %v", err)
-	// }
+// https://stackoverflow.com/questions/61919830/go-gin-get-request-body-json
+type nameBind struct {
+	Name string `json:"name"`
+}
 
-	// log.Printf("Crypto: %v", responseId)
+func createNewCrypto(ctx *gin.Context) {
+	var requestBody nameBind
 
-	// ----------------------------------------------
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-	// request := pb.GetAllCryptoRequest{}
+	req := &pb.CreateNewCryptoRequest{
+		Crypto: &pb.Crypto{
+			Name: requestBody.Name,
+		},
+	}
 
-	// responseStream, err := client.GetAllCrypto(context.Background(), &request)
-	// if err != nil {
-	// 	log.Fatalf("Could not get cryptos: %v", err)
-	// }
+	log.Print("linha", req)
 
-	// for {
-	// 	stream, err := responseStream.Recv()
-	// 	if err == io.EOF {
-	// 		log.Fatalf("Could not receive response: %v", err)
-	// 		break
-	// 	}
+	res, err := client.CreateNewCrypto(ctx, req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"result": fmt.Sprint(res),
+	})
+	return
+}
 
-	// 	if err != nil {
-	// 		log.Fatalf("Could not get cryptos: %v", err)
-	// 	}
+func getAllCrypto(ctx *gin.Context) {
+	obj := pb.GetAllCryptoRequest{}
 
-	// 	log.Printf("crypto %v", stream.GetCrypto())
-	// }
-	// ------------------------------------------------
-	// request := &pb.CreateNewCryptoRequest{
-	// 	Crypto: &pb.Crypto{
-	// 		Name:       "TestCrypto",
-	// 		Upvote:     4,
-	// 		Downvote:   2,
-	// 		Totalscore: 2,
-	// 	},
-	// }
-	// log.Printf("Connected to server %v", request)
+	stream, err := client.GetAllCrypto(ctx, &obj)
 
-	// res, err := client.CreateNewCrypto(context.Background(), request)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
 
-	// if err != nil {
-	// 	log.Fatalf("Could not create new crypto: %v", err)
-	// }
+	for {
+		res, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+		}
+		ctx.JSON(http.StatusOK, res)
+	}
+}
 
-	// log.Printf("Created new crypto: %v", res.Crypto)
+func upvoteCrypto(ctx *gin.Context) {
+	uid := ctx.Param("id")
+
+	obj := pb.UpVoteCryptoRequest{Id: uid}
+
+	res, err := client.UpVoteCrypto(ctx, &obj)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func downvoteCrypto(ctx *gin.Context) {
+	uid := ctx.Param("id")
+
+	obj := pb.DownVoteCryptoRequest{Id: uid}
+
+	res, err := client.DownVoteCrypto(ctx, &obj)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func getByIdCrypto(ctx *gin.Context) {
+	uid := ctx.Param("id")
+
+	obj := pb.GetByIdCryptoRequest{Id: uid}
+
+	res, err := client.GetByIdCrypto(ctx, &obj)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, res)
+}
+
+func deleteCrypto(ctx *gin.Context) {
+	uid := ctx.Param("id")
+
+	obj := pb.DeleteCryptoRequest{Id: uid}
+
+	res, err := client.DeleteCrypto(ctx, &obj)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, res)
 }

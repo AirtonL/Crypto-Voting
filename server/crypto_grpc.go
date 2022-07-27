@@ -48,5 +48,4 @@ func main() {
 	log.Println("Server stopped")
 
 	database.MongoDisconect()
-
 }

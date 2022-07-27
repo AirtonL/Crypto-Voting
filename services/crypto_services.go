@@ -31,14 +31,16 @@ func (m *cryptoServiceServer) CreateNewCrypto(ctx context.Context, in *pb.Create
 		return nil, fmt.Errorf("Crypto name is required")
 	}
 
-	requestBody := models.Crypto{
-		Name:       req.GetName(),
-		Upvote:     req.GetUpvote(),
-		Downvote:   req.GetDownvote(),
-		Totalscore: req.GetTotalscore(),
+	dbBody := pb.CreateNewCryptoRequest{
+		Crypto: &pb.Crypto{
+			Name:       req.GetName(),
+			Upvote:     req.GetUpvote(),
+			Downvote:   req.GetDownvote(),
+			Totalscore: req.GetTotalscore(),
+		},
 	}
 
-	result, err := m.collection.InsertOne(m.contextMongoDB, requestBody)
+	result, err := m.collection.InsertOne(m.contextMongoDB, &dbBody)
 
 	if err != nil {
 		return nil, fmt.Errorf("Error creating new crypto: %v", err)
@@ -55,7 +57,6 @@ func (m *cryptoServiceServer) GetByIdCrypto(ctx context.Context, in *pb.GetByIdC
 	if err != nil {
 		return nil, fmt.Errorf("Error getting crypto by id: %v", err)
 	}
-	log.Println(oid)
 
 	result := m.collection.FindOne(ctx, bson.M{"_id": oid})
 	data := models.Crypto{}
