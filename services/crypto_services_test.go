@@ -65,17 +65,15 @@ func TestCreateNewCrypto(t *testing.T) {
 	defer conn.Close()
 	client := pb.NewCryptoProtoClient(conn)
 
-	req := &pb.CreateNewCryptoRequest{
-		Crypto: &pb.Crypto{
-			Id:         "62de22ae8501922b4078bd8a",
-			Name:       "TestCrypto",
-			Upvote:     4,
-			Downvote:   2,
-			Totalscore: 2,
-		},
+	req := pb.Crypto{
+		Id:         "62de22ae8501922b4078bd8a",
+		Name:       "TestCrypto",
+		Upvote:     4,
+		Downvote:   2,
+		Totalscore: 2,
 	}
 
-	result, err := client.CreateNewCrypto(ctx, req)
+	result, err := client.CreateNewCrypto(ctx, &req)
 
 	if err != nil {
 		t.Fatalf("Failed to create new crypto: %v", err)

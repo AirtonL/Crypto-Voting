@@ -5,7 +5,7 @@ package crypto;
 option go_package = "pb";
 
 service CryptoProto {
-    rpc CreateNewCrypto(CreateNewCryptoRequest) returns (CreateCryptoResponse) {};
+    rpc CreateNewCrypto(Crypto) returns (CreateCryptoResponse) {};
     rpc GetByIdCrypto(GetByIdCryptoRequest) returns (GetByIdCryptoResponse) {};
     rpc GetAllCrypto(GetAllCryptoRequest) returns (stream GetAllCryptoResponse) {};
     rpc UpVoteCrypto(UpVoteCryptoRequest) returns (UpVoteCryptoResponse) {};
@@ -19,10 +19,6 @@ message Crypto {
     int64 upvote = 3;
     int64 downvote = 4;
     int64 totalscore = 5;
-}
-
-message CreateNewCryptoRequest {
-    Crypto crypto = 1;
 }
 
 message CreateCryptoResponse {

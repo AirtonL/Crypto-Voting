@@ -4,7 +4,6 @@ import (
 
 	// "io"
 
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -52,31 +51,23 @@ func createNewCrypto(ctx *gin.Context) {
 	var requestBody nameBind
 
 	if err := ctx.BindJSON(&requestBody); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	req := &pb.CreateNewCryptoRequest{
-		Crypto: &pb.Crypto{
-			Name: requestBody.Name,
-		},
+	req := pb.Crypto{
+		Name: requestBody.Name,
 	}
 
-	log.Print("linha", req)
+	log.Print(req)
 
-	res, err := client.CreateNewCrypto(ctx, req)
+	res, err := client.CreateNewCrypto(ctx, &req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"result": fmt.Sprint(res),
-	})
-	return
+	ctx.JSON(http.StatusOK, res)
 }
 
 func getAllCrypto(ctx *gin.Context) {

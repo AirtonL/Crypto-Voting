@@ -25,19 +25,14 @@ func NewCryptoServer(collection *mongo.Collection, contextMongoDB context.Contex
 	}
 }
 
-func (m *cryptoServiceServer) CreateNewCrypto(ctx context.Context, in *pb.CreateNewCryptoRequest) (*pb.CreateCryptoResponse, error) {
-	req := in.Crypto
+func (m *cryptoServiceServer) CreateNewCrypto(ctx context.Context, in *pb.Crypto) (*pb.CreateCryptoResponse, error) {
+	req := in
 	if req.GetName() == "" {
 		return nil, fmt.Errorf("Crypto name is required")
 	}
 
-	dbBody := pb.CreateNewCryptoRequest{
-		Crypto: &pb.Crypto{
-			Name:       req.GetName(),
-			Upvote:     req.GetUpvote(),
-			Downvote:   req.GetDownvote(),
-			Totalscore: req.GetTotalscore(),
-		},
+	dbBody := models.Crypto{
+		Name: req.GetName(),
 	}
 
 	result, err := m.collection.InsertOne(m.contextMongoDB, &dbBody)
