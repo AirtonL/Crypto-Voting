@@ -23,7 +23,7 @@
 - Instale as dependencias necessárias do go.mod
 - Rode na pasta raiz os comandos:
 ```bash
-Para iniciar o server: go run go run server/crypto_grpc.go
+Para iniciar o server: go run server/crypto_grpc.go
 Para iniciar o client: go run client/main.go
 Certifique-se de estar com o mongoDB up
 ```
