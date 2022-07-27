@@ -18,8 +18,6 @@ var (
 	client pb.CryptoProtoClient
 )
 
-// https://www.youtube.com/watch?v=Y92WWaZJl24&ab_channel=TensorProgramming
-
 func main() {
 	log.Println("Starting client")
 	connection, err := grpc.Dial("localhost:50051", grpc.WithInsecure())

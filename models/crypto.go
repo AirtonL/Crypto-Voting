@@ -9,5 +9,3 @@ type Crypto struct {
 	Downvote   int64              `bson:"downvote"`
 	Totalscore int64              `bson:"totalscore"`
 }
-
-type Cryptos []Crypto

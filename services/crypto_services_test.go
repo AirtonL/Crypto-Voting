@@ -14,8 +14,6 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-// https://stackoverflow.com/questions/42102496/testing-a-grpc-service
-
 type Crypto struct {
 	id         string
 	name       string
