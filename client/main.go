@@ -42,7 +42,6 @@ func main() {
 	}
 }
 
-// https://stackoverflow.com/questions/61919830/go-gin-get-request-body-json
 type nameBind struct {
 	Name string `json:"name"`
 }
