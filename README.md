@@ -16,7 +16,7 @@
 - MongoDB 5.0.9 Community
 - Protoc 3.6.1
 
-## Como rodar
+## Como executar o projeto localmente
 
 - Clone o projeto
 - Entre na pasta raiz do projeto
